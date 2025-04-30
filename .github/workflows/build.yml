@@ -21,9 +21,15 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential git zip unzip python3-pip openjdk-17-jdk android-tools-adb android-tools-fastboot
+          sudo apt install -y build-essential git zip unzip python3-pip openjdk-17-jdk
+          sudo apt install -y android-sdk
           pip install --user buildozer cython
           echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platforms;android-33" "build-tools;33.0.0" "platform-tools" "tools" "extras;android;m2repository" "extras;google;m2repository"
 
       - name: Build APK
         run: |
