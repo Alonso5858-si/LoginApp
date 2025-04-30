@@ -1,4 +1,4 @@
-name: Build APK with Docker
+name: Build APK with Docker (joaoventura)
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
       - name: Build APK with Buildozer Docker image
         run: |
           docker run --rm -v ${{ github.workspace }}:/app \
-            kivy/buildozer:latest \
+            joaoventura/buildozer \
             /bin/bash -c "cd /app && buildozer android debug"
 
       - name: Upload APK artifact
