@@ -22,7 +22,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y build-essential git zip unzip python3-pip openjdk-17-jdk
-          pip install --user buildozer
+          pip install --user buildozer cython
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Build APK
