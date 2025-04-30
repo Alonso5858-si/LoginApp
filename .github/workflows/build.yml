@@ -33,23 +33,16 @@ jobs:
 
       - name: PREPARACIÓN ANDROID (Solución Definitiva)
         run: |
-          sudo mkdir -p "${HOME}/.android" || true
-          sudo touch "${HOME}/.android/repositories.cfg" || true
-          sudo chown -R $USER:$USER "${HOME}/.android" || true
-          
+          mkdir -p "${HOME}/.android" || true
+          touch "${HOME}/.android/repositories.cfg" || true
           mkdir -p "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools" || true
 
           echo "🔽 Descargando commandlinetools..."
-          if ! wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/tools.zip; then
-            echo "::warning::Falló descarga inicial, reintentando..."
-            wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/tools.zip
-          fi
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/tools.zip || \
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/tools.zip
 
-          unzip -q /tmp/tools.zip -d /tmp/ && \
-          mv /tmp/cmdline-tools "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools/latest" || {
-            echo "::error::Error al mover commandlinetools"
-            exit 1
-          }
+          unzip -q /tmp/tools.zip -d /tmp/
+          mv /tmp/cmdline-tools "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools/latest"
 
           echo "🛠 Instalando componentes Android..."
           for i in {1..3}; do
@@ -57,20 +50,20 @@ jobs:
               --sdk_root="${HOME}/.buildozer/android/platform/android-sdk" \
               "build-tools;34.0.0" \
               "platform-tools" \
-              "platforms;android-33" \
-              "aidl" && break || sleep 10
+              "platforms;android-33" && break || sleep 10
           done
 
           echo "📝 Aceptando licencias..."
-          (yes || true) | "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager" --licenses
+          yes | "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager" --licenses
 
-          echo "✅ Configuración Android completada!"
-
-      - name: CONSTRUIR APK (con protección anti-fallos)
+      - name: CONSTRUIR APK (sin limpiar si no existe)
         run: |
           export PATH="${HOME}/.local/bin:${PATH}"
-          buildozer android clean
-          
+
+          # Solo limpia si ya existe python-for-android
+          [ -d ".buildozer/android/platform/python-for-android" ] && buildozer android clean || echo "🟡 Nada que limpiar"
+
+          # Intento principal + 2 reintentos
           for i in {1..3}; do
             echo "INTENTO $i/3"
             buildozer -v android debug && break || sleep 30
