@@ -1,4 +1,4 @@
-name: Build APK with Docker (joaoventura)
+name: Build APK with kivy/python
 
 on:
   push:
@@ -13,14 +13,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build APK with Buildozer Docker image
+      - name: Build APK with Kivy Docker
         run: |
-          docker run --rm -v ${{ github.workspace }}:/app \
-            joaoventura/buildozer \
-            /bin/bash -c "cd /app && buildozer android debug"
+          docker run --rm -v ${{ github.workspace }}:/app -w /app kivy/python:3.10 bash -c "
+            pip install --upgrade pip
+            pip install buildozer cython
+            apt update && apt install -y openjdk-17-jdk
+            buildozer android debug
+          "
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: loginapp-debug.apk
           path: bin/*.apk
+
