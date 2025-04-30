@@ -23,4 +23,3 @@ jobs:
         with:
           name: loginapp-debug.apk
           path: bin/*.apk
-
