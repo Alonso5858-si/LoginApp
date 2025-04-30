@@ -16,7 +16,7 @@ android.build_tools_version = 34.0.0
 android.ndk = 25b
 android.gradle_dependencies = 
 android.gradle_plugin_version = 7.2.2
-android.sdk = 24
+
 
 # Archivos incluidos
 presplash.filename = %(source.dir)s/logo.png
