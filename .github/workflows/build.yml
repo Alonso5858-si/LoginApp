@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential git zip unzip python3-pip openjdk-17-jdk
+          sudo apt install -y build-essential git zip unzip python3-pip openjdk-17-jdk android-tools-adb android-tools-fastboot
           pip install --user buildozer cython
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
