@@ -23,14 +23,14 @@ jobs:
           sudo apt update
           sudo apt install -y build-essential git zip unzip python3-pip openjdk-17-jdk
           pip install --user buildozer
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Initialize and Build APK
+      - name: Build APK
         run: |
-          export PATH=$HOME/.local/bin:$PATH
           buildozer android debug
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: loginapp-debug.apk
           path: bin/*.apk
