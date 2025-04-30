@@ -1,4 +1,4 @@
-name: Build APK with kivy/buildozer
+name: Build APK with Buildozer and Python
 
 on:
   push:
@@ -13,13 +13,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build APK using Docker
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
         run: |
-          docker run --rm -v ${{ github.workspace }}:/app -w /app kivy/buildozer \
+          sudo apt update
+          sudo apt install -y build-essential git zip unzip python3-pip openjdk-17-jdk
+          pip install --user buildozer
+
+      - name: Initialize and Build APK
+        run: |
+          export PATH=$HOME/.local/bin:$PATH
           buildozer android debug
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: loginapp-debug.apk
           path: bin/*.apk
