@@ -22,13 +22,19 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y build-essential git zip unzip python3-pip openjdk-17-jdk
-          sudo apt install -y android-sdk
+          sudo apt install -y android-sdk android-sdk-platform-tools
           pip install --user buildozer cython
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
+      - name: Set up Android SDK environment
+        run: |
+          echo "export ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
+          echo "export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
+          mkdir -p $ANDROID_HOME
+          yes | sdkmanager --licenses
+
       - name: Install Android SDK packages
         run: |
-          yes | sdkmanager --licenses
           sdkmanager "platforms;android-33" "build-tools;33.0.0" "platform-tools" "tools" "extras;android;m2repository" "extras;google;m2repository"
 
       - name: Build APK
