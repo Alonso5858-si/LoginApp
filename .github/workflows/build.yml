@@ -31,52 +31,46 @@ jobs:
           python -m pip install --upgrade pip
           pip install --user buildozer==1.5.0 cython==0.29.33 kivy==2.3.0
 
-     - name: PREPARACIÓN ANDROID (Solución Definitiva)
-  run: |
-    # Configuración de directorios con manejo de errores
-    sudo mkdir -p "${HOME}/.android" || true
-    sudo touch "${HOME}/.android/repositories.cfg" || true
-    sudo chown -R $USER:$USER "${HOME}/.android" || true
-    
-    # Crear estructura de directorios
-    mkdir -p "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools" || true
-    
-    # Descarga con verificación
-    echo "🔽 Descargando commandlinetools..."
-    if ! wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/tools.zip; then
-      echo "::warning::Falló descarga inicial, reintentando..."
-      wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/tools.zip
-    fi
-    
-    # Extracción segura
-    unzip -q /tmp/tools.zip -d /tmp/ && \
-    mv /tmp/cmdline-tools "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools/latest" || {
-      echo "::error::Error al mover commandlinetools"
-      exit 1
-    }
-    
-    # Instalación con reintentos
-    echo "🛠 Instalando componentes Android..."
-    for i in {1..3}; do
-      "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager" \
-        --sdk_root="${HOME}/.buildozer/android/platform/android-sdk" \
-        "build-tools;34.0.0" \
-        "platform-tools" \
-        "platforms;android-33" \
-        "aidl" && break || sleep 10
-    done
-    
-    # Aceptar licencias con verificación
-    echo "📝 Aceptando licencias..."
-    (yes || true) | "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager" --licenses
-    
-    echo "✅ Configuración Android completada!"
+      - name: PREPARACIÓN ANDROID (Solución Definitiva)
+        run: |
+          sudo mkdir -p "${HOME}/.android" || true
+          sudo touch "${HOME}/.android/repositories.cfg" || true
+          sudo chown -R $USER:$USER "${HOME}/.android" || true
+          
+          mkdir -p "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools" || true
+
+          echo "🔽 Descargando commandlinetools..."
+          if ! wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/tools.zip; then
+            echo "::warning::Falló descarga inicial, reintentando..."
+            wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/tools.zip
+          fi
+
+          unzip -q /tmp/tools.zip -d /tmp/ && \
+          mv /tmp/cmdline-tools "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools/latest" || {
+            echo "::error::Error al mover commandlinetools"
+            exit 1
+          }
+
+          echo "🛠 Instalando componentes Android..."
+          for i in {1..3}; do
+            "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager" \
+              --sdk_root="${HOME}/.buildozer/android/platform/android-sdk" \
+              "build-tools;34.0.0" \
+              "platform-tools" \
+              "platforms;android-33" \
+              "aidl" && break || sleep 10
+          done
+
+          echo "📝 Aceptando licencias..."
+          (yes || true) | "${HOME}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager" --licenses
+
+          echo "✅ Configuración Android completada!"
+
       - name: CONSTRUIR APK (con protección anti-fallos)
         run: |
           export PATH="${HOME}/.local/bin:${PATH}"
           buildozer android clean
           
-          # Intento principal + 2 reintentos
           for i in {1..3}; do
             echo "INTENTO $i/3"
             buildozer -v android debug && break || sleep 30
@@ -89,3 +83,4 @@ jobs:
           path: bin/*.apk
           if-no-files-found: error
           retention-days: 7
+
