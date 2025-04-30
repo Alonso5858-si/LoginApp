@@ -30,7 +30,7 @@ jobs:
           buildozer android debug
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v2  # Cambiado a v2
+        uses: actions/upload-artifact@v4  # Versión actualizada
         with:
           name: loginapp-debug.apk
           path: bin/*.apk
